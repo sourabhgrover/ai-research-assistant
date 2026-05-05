@@ -29,4 +29,9 @@ while True:
     response = agent.invoke({
         "messages":[{"role":"user","content":query}]
     })
+
+    #Prints list of types of messages
+    # for msg in response["messages"]:
+    #     print(f"{type(msg)} -> {msg}")
+        
     print("Agent: ",response["messages"][-1].content)
