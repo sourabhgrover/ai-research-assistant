@@ -1,7 +1,9 @@
 from langchain.agents import create_agent
-from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.tools import tool
+from langchain_core.messages import (HumanMessage,SystemMessage)
+
+from dotenv import load_dotenv
 import os
 
 # Load .env
@@ -19,6 +21,12 @@ def multiply(a: int, b: int) -> int:
 #Agent
 agent = create_agent(model=llm,tools=[multiply])
 
+# Memory / History
+
+chat_history = [
+    SystemMessage(content="You are a helpful AI assistant.")
+]
+
 
 while True:
     query = input("User: ")
@@ -26,12 +34,27 @@ while True:
     if query.lower() in ["exit","quit"]:
         break
 
+    # Add user query to history
+    chat_history.append(HumanMessage(content=query))
+
+    # response = agent.invoke({
+    #     "messages":[{"role":"user","content":query}]
+    # })
+
     response = agent.invoke({
-        "messages":[{"role":"user","content":query}]
-    })
+        "messages": chat_history
+        })
 
     #Prints list of types of messages
-    # for msg in response["messages"]:
+    for msg in response["messages"]:
     #     print(f"{type(msg)} -> {msg}")
+        print(type(msg).__name__)
+
+    final_response = response["messages"][-1]
+
+    # print(f"Final response type: {type(final_response), final_response}")
         
-    print("Agent: ",response["messages"][-1].content)
+    print("\nAgent: ",final_response.content)
+
+    # Save AI response to history
+    chat_history.append(final_response)
